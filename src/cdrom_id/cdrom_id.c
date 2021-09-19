@@ -252,8 +252,25 @@ static int cd_capability_compat(struct udev *udev, int fd)
 
 static int cd_media_compat(struct udev *udev, int fd)
 {
+        int r;
+
+        r = ioctl(c->fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
+        if (r < 0) {
+                log_debug("ioctl(CDROM_DRIVE_STATUS) failed: %m");
+                return -1;
+        }
         if (ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT) != CDS_DISC_OK) {
                 log_debug("CDROM_DRIVE_STATUS != CDS_DISC_OK");
+                return -1;
+        }
+        if (r != CDS_DISC_OK) {
+                log_debug("ioctl(CDROM_DRIVE_STATUS) → %d (%s), ignoring.",
+                          r,
+                          r == CDS_NO_INFO ? "no info" :
+                          r == CDS_NO_DISC ? "no disc" :
+                          r == CDS_TRAY_OPEN ? "tray open" :
+                          r == CDS_DRIVE_NOT_READY ? "drive not ready" :
+                          "unknown status");
                 return -1;
         }
         cd_media = 1;
