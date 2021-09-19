@@ -254,7 +254,7 @@ static int cd_media_compat(struct udev *udev, int fd)
 {
         int r;
 
-        r = ioctl(c->fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
+        r = ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
         if (r < 0) {
                 log_debug("ioctl(CDROM_DRIVE_STATUS) failed: %m");
                 return -1;
